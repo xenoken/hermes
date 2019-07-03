@@ -33,7 +33,10 @@
  *
  */
 
+import 'dart:cli' as cli;
+
 import 'package:hermes/hermes.dart';
+
 
 class Message {
   final String content;
@@ -42,10 +45,12 @@ class Message {
 
 main() {
   // registers a callback that is called when the message is received.
-  Hermes.fetch<Message>((message) {
+  Hermes.fetch<Message>((message){
     print("Message received. it says: '${message.content}'");
   });
 
   // send a message
   Hermes.send<Message>(Message("Hello World!"));
+
+  cli.waitFor(Future.delayed(Duration(seconds:30)));
 }

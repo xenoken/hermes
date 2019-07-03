@@ -44,10 +44,6 @@ class TestMessage {
 
 void main() {
   group("Mercury", () {
-    test('send - returns false if not registered', () {
-      var result = Hermes.send<TestMessage>(TestMessage(""));
-      expect(result, isFalse);
-    });
 
     test('receive', () async {
       Hermes.fetch<TestMessage>((message) {
@@ -63,8 +59,5 @@ void main() {
       Hermes.send<TestMessage>(TestMessage(""));
     });
 
-    test('send - returns true if registered', () async {
-      equals(Hermes.send<TestMessage>(TestMessage("")) == false);
-    });
   });
 }

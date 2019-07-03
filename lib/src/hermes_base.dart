@@ -33,51 +33,45 @@
  *
  */
 
-import 'dart:collection';
+import 'dart:async';
 
 /// [Hermes]. The messenger.
-class Hermes<T> {
-  final Map<int, ListQueue<Function(T)>> _callbacks =
-      <int, ListQueue<Function(T)>>{};
+class Hermes {
+  final Map<dynamic, Stream<dynamic>> _streams = <dynamic, Stream<dynamic>>{};
 
-  static Map<int, Hermes> _instances = <int, Hermes>{};
+  final StreamController _mainstream;
 
-  Hermes._();
+  static Hermes _hermes;
 
-  static Hermes<T> _get<T>() {
-    if (!_instances.containsKey(T.hashCode)) {
-      _instances[T.hashCode] = Hermes<T>._();
+  Hermes._() : _mainstream = StreamController();
+
+  static Hermes _get() {
+    if (_hermes == null) {
+      _hermes = Hermes._();
     }
-    return _instances[T.hashCode] as Hermes<T>;
+    return _hermes;
   }
 
   /// [send] allows to send a message.
-  static bool send<T>(T message) {
-    var i = _get<T>();
-
-    if (!i._callbacks.containsKey(T.hashCode)) {
-      return false;
-    }
-
-    for (var handler in i._callbacks[T.hashCode]) {
-      Future.microtask(() {
-        handler(message);
-      });
-    }
-    ;
-
-    return true;
+  static void send<T>(T message) {
+    _get()._mainstream.add(message);
   }
 
   /// [fetch] registers callbacks for messages.
   ///
   /// whenever a message of type [T] is received, the [callback]
   /// is called.
-  static fetch<T>(Function(T arg) callback) {
-    var i = _get<T>();
-    if (!i._callbacks.containsKey(T.hashCode)) {
-      i._callbacks[T.hashCode] = Queue<Function(T)>();
+  static fetch<T>(Function(T arg) func) {
+    var i = _get();
+    if (!i._streams.containsKey(T)) {
+      i._streams[T] = i._mainstream.stream
+          .asBroadcastStream()
+          .where((event) => event is T)
+          .cast<T>();
     }
-    i._callbacks[T.hashCode].add(callback);
+
+    i._streams[T].listen((event) {
+      func(event);
+    });
   }
 }
