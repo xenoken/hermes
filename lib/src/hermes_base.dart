@@ -53,6 +53,7 @@ class Hermes<T> {
   /// whenever a message of type [T] is received, the [callback]
   /// is called.
   static void fetch<T>(Function(T arg) callback) {
-    _instances[T] ??= StreamController<T>.broadcast()..stream.listen(callback);
+    final target = _instances[T] ??= StreamController<T>.broadcast();
+    target.stream.listen(callback);
   }
 }
