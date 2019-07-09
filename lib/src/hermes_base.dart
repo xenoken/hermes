@@ -37,7 +37,6 @@ import 'dart:async';
 
 /// [Hermes]. The messenger.
 class Hermes {
-
   final Map<dynamic, Stream<dynamic>> _streams = <dynamic, Stream<dynamic>>{};
 
   final StreamController _mainstream;
@@ -66,7 +65,8 @@ class Hermes {
     var i = _get();
 
     if (!i._streams.containsKey(T)) {
-      i._streams[T] = i._mainstream.stream.asBroadcastStream()
+      i._streams[T] = i._mainstream.stream
+          .asBroadcastStream()
           .where((event) => event is T)
           .cast<T>();
     }

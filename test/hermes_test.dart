@@ -44,7 +44,6 @@ class TestMessage {
 
 void main() {
   group("Mercury", () {
-
     test('receive', () async {
       Hermes.fetch<TestMessage>((message) {
         equals(message.runtimeType is TestMessage);
@@ -58,6 +57,5 @@ void main() {
 
       Hermes.send<TestMessage>(TestMessage(""));
     });
-
   });
 }
