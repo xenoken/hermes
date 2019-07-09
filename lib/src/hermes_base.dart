@@ -55,7 +55,7 @@ class Hermes {
 
   /// [send] allows to send a message.
   static void send<T>(T message) {
-    Future.microtask(()=> _get()._mainstream.add(message));
+    _get()._mainstream.add(message);
   }
 
   /// [fetch] registers callbacks for messages.
@@ -65,9 +65,7 @@ class Hermes {
   static fetch<T>(Function(T arg) func) {
     var i = _get();
 
-    if (i._broadcastMainstream == null){
-      i._broadcastMainstream = i._mainstream.stream.asBroadcastStream();
-    }
+    i._broadcastMainstream ??= i._mainstream.stream.asBroadcastStream();
 
     if (!i._streams.containsKey(T)) {
       i._streams[T] = i._broadcastMainstream
