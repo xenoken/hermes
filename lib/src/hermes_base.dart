@@ -44,8 +44,9 @@ class Hermes<T> {
   /// 
   /// Returns true if the target exists, false otherwise
   static bool send<T>(T message) {
-    _instances[T]?.add(message);
-    return _instances[T] != null ? true : false;
+    final target = _instances[T];
+    final?.add(message);
+    return final != null;
   }
 
   /// [fetch] registers callbacks for messages.
