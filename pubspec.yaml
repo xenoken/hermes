@@ -1,6 +1,6 @@
 name: hermes
 description: Messaging library for Dart. Nimble and efficient like the messenger of the Gods.
-version: 1.0.0
+version: 1.0.1
 homepage: https://www.github.com/xenoken/hermes
 repository: https://www.github.com/xenoken/hermes
 author: Ken Ekeoha <ekeohak@gmail.com>
