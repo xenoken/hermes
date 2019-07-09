@@ -55,6 +55,6 @@ class Hermes<T> {
   /// is called.
   static void fetch<T>(Function(T arg) callback) {
     final target = _instances[T] ??= StreamController<T>.broadcast();
-    target.stream.listen(callback);
+    (target as StreamController<T>).stream.listen(callback);
   }
 }
