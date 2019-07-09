@@ -36,25 +36,14 @@
 import 'dart:async';
 
 /// [Hermes]. The messenger.
-class Hermes {
-  final Map<dynamic, Stream<dynamic>> _streams = <dynamic, Stream<dynamic>>{};
+abstract class Hermes {
+  static Map<dynamic, Stream<dynamic>> _streams = <dynamic, Stream<dynamic>>{};
 
-  final StreamController _mainstream;
-
-  static Hermes _hermes;
-
-  Hermes._() : _mainstream = StreamController();
-
-  static Hermes _get() {
-    if (_hermes == null) {
-      _hermes = Hermes._();
-    }
-    return _hermes;
-  }
+  static final StreamController _mainstream = StreamController();
 
   /// [send] allows to send a message.
   static void send<T>(T message) {
-    _get()._mainstream.add(message);
+    _mainstream.add(message);
   }
 
   /// [fetch] registers callbacks for messages.
@@ -62,16 +51,14 @@ class Hermes {
   /// whenever a message of type [T] is received, the [callback]
   /// is called.
   static fetch<T>(Function(T arg) func) {
-    var i = _get();
-
-    if (!i._streams.containsKey(T)) {
-      i._streams[T] = i._mainstream.stream
+    if (!_streams.containsKey(T)) {
+      _streams[T] = _mainstream.stream
           .asBroadcastStream()
           .where((event) => event is T)
           .cast<T>();
     }
 
-    i._streams[T].listen((event) {
+    _streams[T].listen((event) {
       func(event);
     });
   }
