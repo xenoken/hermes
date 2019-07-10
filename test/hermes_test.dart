@@ -33,8 +33,8 @@
  *
  */
 
-import 'package:test/test.dart';
 import 'package:hermes/hermes.dart';
+import 'package:test/test.dart';
 
 class TestMessage {
   final String content;
@@ -56,6 +56,35 @@ void main() {
       });
 
       Hermes.send<TestMessage>(TestMessage(""));
+    });
+
+    test('Receive - Multiple fetches - same message type', () async {
+      Hermes.fetch<TestMessage>((message) {
+        print('first: received ${message.content}');
+        equals(message.runtimeType is TestMessage);
+      });
+
+      Hermes.fetch<TestMessage>((message) {
+        print('second: received ${message.content}');
+        equals(message.runtimeType is TestMessage);
+      });
+
+      Hermes.send<TestMessage>(TestMessage('Hello!'));
+    });
+
+    test('Receive - Multiple fetches - different message types', () async {
+      Hermes.fetch<TestMessage>((message) {
+        print('first: received ${message.content}');
+        equals(message.runtimeType is TestMessage);
+      });
+
+      Hermes.fetch<int>((message) {
+        print('second: received ${message.toString()}');
+        equals(message.runtimeType is TestMessage);
+      });
+
+      Hermes.send<TestMessage>(TestMessage('Hello!'));
+      Hermes.send<int>(42);
     });
   });
 }

@@ -40,6 +40,7 @@ abstract class Hermes {
   static Map<dynamic, Stream<dynamic>> _streams = <dynamic, Stream<dynamic>>{};
 
   static final StreamController _mainstream = StreamController();
+  static Stream _bcmainstream = _mainstream.stream.asBroadcastStream();
 
   /// [send] allows to send a message.
   static void send<T>(T message) {
@@ -52,10 +53,7 @@ abstract class Hermes {
   /// is called.
   static fetch<T>(Function(T arg) func) {
     if (!_streams.containsKey(T)) {
-      _streams[T] = _mainstream.stream
-          .asBroadcastStream()
-          .where((event) => event is T)
-          .cast<T>();
+      _streams[T] = _bcmainstream.where((event) => event is T);
     }
 
     _streams[T].listen((event) {
