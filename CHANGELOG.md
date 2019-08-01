@@ -1,3 +1,8 @@
+## 3.0.0
+
+- Added FetchOperation.
+- Breaking change : Hermes.fetch - returns a FetchOperation instance now.
+
 ## 2.0.0
 
 - Breaking change : Hermes.send - return type changed from bool to void.

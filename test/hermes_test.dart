@@ -36,6 +36,8 @@
 import 'package:hermes/hermes.dart';
 import 'package:test/test.dart';
 
+import 'dart:cli';
+
 class TestMessage {
   final String content;
 
@@ -44,47 +46,87 @@ class TestMessage {
 
 void main() {
   group("Mercury", () {
+    //
     test('receive', () async {
       Hermes.fetch<TestMessage>((message) {
-        equals(message.runtimeType is TestMessage);
+        expect((message.runtimeType == TestMessage), isTrue);
       });
     });
 
-    test('Receive - is Typed', () async {
+    //
+    test('Fetch - is Typed', () async {
       Hermes.fetch<TestMessage>((message) {
-        equals(message.runtimeType is TestMessage);
+        expect((message.runtimeType == TestMessage), isTrue);
       });
 
       Hermes.send<TestMessage>(TestMessage(""));
     });
 
-    test('Receive - Multiple fetches - same message type', () async {
+    //
+    test('Fetch - Multiple fetches - same message type', () async {
       Hermes.fetch<TestMessage>((message) {
         print('first: received ${message.content}');
-        equals(message.runtimeType is TestMessage);
+        expect((message.runtimeType == TestMessage), isTrue);
       });
 
       Hermes.fetch<TestMessage>((message) {
         print('second: received ${message.content}');
-        equals(message.runtimeType is TestMessage);
+        expect((message.runtimeType == TestMessage), isTrue);
       });
 
       Hermes.send<TestMessage>(TestMessage('Hello!'));
     });
 
-    test('Receive - Multiple fetches - different message types', () async {
+    //
+    test('Fetch - Multiple fetches - different message types', () async {
       Hermes.fetch<TestMessage>((message) {
         print('first: received ${message.content}');
-        equals(message.runtimeType is TestMessage);
+        expect((message.runtimeType == TestMessage), isTrue);
       });
 
       Hermes.fetch<int>((message) {
         print('second: received ${message.toString()}');
-        equals(message.runtimeType is TestMessage);
+        expect((message.runtimeType == int), isTrue);
       });
 
       Hermes.send<TestMessage>(TestMessage('Hello!'));
       Hermes.send<int>(42);
+    });
+
+    //
+    test('Unfetch', () async {
+      var handle = Hermes.fetch<TestMessage>((message) {
+        print('Unfetch: received ${message.content}');
+      });
+
+      var unfetched = await Hermes.unfetch(handle);
+
+      Hermes.send(TestMessage('Hello!'));
+
+      expect(unfetched, isTrue);
+    });
+
+    //
+    test('Fetch and Unfetch - Multiple fetches - different message types',
+        () async {
+      var op1 = Hermes.fetch<TestMessage>((message) {
+        print('Fetch and Unfetch: first: received ${message.content}');
+        expect((message.runtimeType == TestMessage), isTrue);
+      });
+
+      var op2 = Hermes.fetch<int>((message) {
+        print('Fetch and Unfetch: second: received ${message.toString()}');
+        expect((message.runtimeType == int), isTrue);
+      });
+
+      Hermes.send<TestMessage>(TestMessage('Hello!'));
+      Hermes.send<int>(42);
+
+      // wait some seconds to make sure that the messages arrive.
+      waitFor(Future.delayed(Duration(seconds: 4)));
+
+      await Hermes.unfetch(op1);
+      await Hermes.unfetch(op2);
     });
   });
 }

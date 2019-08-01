@@ -49,15 +49,44 @@ abstract class Hermes {
 
   /// [fetch] registers callbacks for messages.
   ///
-  /// whenever a message of type [T] is received, the [callback]
+  /// whenever a message of type [T] is received, the [func] callback
   /// is called.
-  static fetch<T>(Function(T arg) func) {
-    if (!_streams.containsKey(T)) {
+  /// returns a [FetchOperation] that allows to 'unfetch' the message,
+  /// Releasing memory resources and preventing memory leaks.
+  static FetchOperation fetch<T>(Function(T arg) func) {
+    if (!_streams.containsKey(T) || _streams[T] == null) {
       _streams[T] = _bcmainstream.where((event) => event is T);
     }
 
-    _streams[T].listen((event) {
+    var _ss = _streams[T].listen((event) {
       func(event);
     });
+
+    return FetchOperation._(_ss);
   }
+
+  /// [unfetch] cancels a previous fetch call..
+  ///
+  /// [unfetch]ing a message, releases memory resources
+  /// and prevents memory leaks.
+  /// returns true if the operation was successfully unfetched, false otherwise.
+  static Future<bool> unfetch(FetchOperation operation) async {
+    if (operation == null || operation._streamSubscription == null) {
+      return false;
+    }
+
+    await operation._streamSubscription.cancel();
+
+    return true;
+  }
+}
+
+/// [FetchOperation] represents a reference to a successful fetch operation.
+/// With an instance of [FetchOperation]
+/// it is possible to cancel the fetch operation
+/// and release resources, preventing memory leaks.
+class FetchOperation {
+  final StreamSubscription _streamSubscription;
+
+  FetchOperation._(this._streamSubscription);
 }

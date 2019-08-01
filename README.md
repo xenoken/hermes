@@ -38,6 +38,11 @@ Hermes.fetch(T message, (T message){ });
 
 Note that _fetch_ acts like a transparent registration mechanism: when You call _fetch_ the specified handler function will be called whenever a new message of type T arrives.
 
+From version 3.0.0 _fetch_ returns a FetchOperation instance. this object can be used to 'unfetch' and release resources:
+```dart
+Hermes.unfetch(FetchOperation op);
+```
+
 
 A simple usage example:
 
@@ -51,19 +56,25 @@ class Message {
 
 main() {
   // registers a callback that is called when the message is received.
-  Hermes.receive((Message message) {
+  var fetchOp = Hermes.fetch((Message message) {
     print("Message received. it says: '${message.content}'");
   });
 
   // send a message
   Hermes.send(Message("Hello World!"));
+  
+  // ... some code here...
+  
+  // unfetch the message if not required anymore.
+  Hermes.unfetch(fetchOp);
 }
 
 ```
 
 ## Remarks
 
-- _Hermes.send_ and _Hermes.receive_ are synchronous functions, but the message handler can be async.
+- _Hermes.send_ and _Hermes.fetch_ are synchronous functions, but the message handler can be async.
+- _Hermes.unfetch_ is an async function.
 
 ## Features and bugs
 
